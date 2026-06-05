@@ -7,10 +7,7 @@
 
 // ═══════════════════════════════════════════════════════════════
 // API BASE URL
-// Change to your EC2 public IP for production:
-// const API = 'http://YOUR_EC2_PUBLIC_IP/api';
-// ═══════════════════════════════════════════════════════════════
-const API = 'http://localhost:5000/api';
+const API = 'http://13.206.82.46/api';
 
 // ─── State ─────────────────────────────────────────────────────
 let currentCity = 'London';
