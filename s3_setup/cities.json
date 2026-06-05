@@ -1,0 +1,66 @@
+{
+  "featured_cities": [
+    {
+      "name": "London",
+      "emoji": "🇬🇧",
+      "description": "The historic capital of England, known for its iconic landmarks and rainy weather.",
+      "timezone": "Europe/London",
+      "country": "GB"
+    },
+    {
+      "name": "New York",
+      "emoji": "🇺🇸",
+      "description": "The city that never sleeps, featuring dramatic seasonal weather changes.",
+      "timezone": "America/New_York",
+      "country": "US"
+    },
+    {
+      "name": "Tokyo",
+      "emoji": "🇯🇵",
+      "description": "Japan's bustling capital with cherry blossoms in spring and humid summers.",
+      "timezone": "Asia/Tokyo",
+      "country": "JP"
+    },
+    {
+      "name": "Paris",
+      "emoji": "🇫🇷",
+      "description": "The City of Light, with mild winters and warm, sunny summers.",
+      "timezone": "Europe/Paris",
+      "country": "FR"
+    },
+    {
+      "name": "Sydney",
+      "emoji": "🇦🇺",
+      "description": "Australia's harbour city with warm beaches and mild winters.",
+      "timezone": "Australia/Sydney",
+      "country": "AU"
+    },
+    {
+      "name": "Dubai",
+      "emoji": "🇦🇪",
+      "description": "A desert metropolis known for extreme heat and modern architecture.",
+      "timezone": "Asia/Dubai",
+      "country": "AE"
+    },
+    {
+      "name": "Mumbai",
+      "emoji": "🇮🇳",
+      "description": "India's financial capital with tropical monsoon climate and vibrant culture.",
+      "timezone": "Asia/Kolkata",
+      "country": "IN"
+    },
+    {
+      "name": "Toronto",
+      "emoji": "🇨🇦",
+      "description": "Canada's largest city with cold winters, warm summers, and stunning fall colors.",
+      "timezone": "America/Toronto",
+      "country": "CA"
+    }
+  ],
+  "app_config": {
+    "default_city": "London",
+    "max_featured": 8,
+    "source": "AWS S3",
+    "last_updated": "2026-06-05"
+  }
+}

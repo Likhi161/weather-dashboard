@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WeatherVault - AWS-powered real-time weather dashboard with Secrets Manager, S3, and EC2 integration. Dark glassmorphism UI.">
+    <title>WeatherVault – AWS Weather Dashboard</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6.4.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ═══ Animated Background Orbs ═══ -->
+    <div class="bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ═══ Loading Overlay ═══ -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Fetching secrets &amp; weather...</p>
+            <p class="loading-subtext">AWS Secrets Manager → OpenWeatherMap → S3</p>
+        </div>
+    </div>
+
+    <!-- ═══ Toast Container ═══ -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ═══ Header ═══ -->
+    <header class="header" id="appHeader">
+        <div class="header-inner">
+            <div class="logo">
+                <i class="fas fa-cloud-sun logo-icon"></i>
+                <div class="logo-text">
+                    <h1>WeatherVault</h1>
+                    <span class="logo-subtitle">AWS Powered</span>
+                </div>
+            </div>
+            <div class="status-badges">
+                <div class="badge badge-ec2" id="badgeEC2">
+                    <span class="badge-dot pulse-dot"></span>
+                    <span>EC2 Live</span>
+                </div>
+                <div class="badge badge-secrets" id="badgeSecrets">
+                    <i class="fas fa-lock"></i>
+                    <span>Secrets Manager</span>
+                </div>
+                <div class="badge badge-s3" id="badgeS3">
+                    <i class="fas fa-database"></i>
+                    <span>S3 Storage</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ AWS Status Bar ═══ -->
+    <section class="aws-status-bar" id="awsStatusBar">
+        <div class="status-bar-inner">
+            <div class="status-item" id="statusEC2">
+                <i class="fas fa-server"></i>
+                <span>EC2</span>
+                <span class="status-value" id="statusEC2Value">Checking...</span>
+            </div>
+            <div class="status-item" id="statusSecrets">
+                <i class="fas fa-key"></i>
+                <span>Secrets Manager</span>
+                <span class="status-value" id="statusSecretsValue">Checking...</span>
+            </div>
+            <div class="status-item" id="statusS3">
+                <i class="fas fa-bucket"></i>
+                <span>S3 Files</span>
+                <span class="status-value" id="statusS3Value">Checking...</span>
+            </div>
+            <div class="status-item" id="statusHealth">
+                <span class="health-dot" id="healthDot"></span>
+                <span>Overall Health</span>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-content">
+
+        <!-- ═══ Search Section ═══ -->
+        <section class="search-section" id="searchSection">
+            <h2 class="gradient-title">Real-Time Weather</h2>
+            <p class="gradient-subtitle">Secured by AWS</p>
+            <p class="search-description">
+                Credentials from <strong>Secrets Manager</strong> · Logs stored in <strong>S3</strong> · Hosted on <strong>EC2</strong>
+            </p>
+            <div class="search-bar" id="searchBar">
+                <i class="fas fa-search search-icon"></i>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search any city worldwide..."
+                    autocomplete="off"
+                >
+                <button class="search-btn" id="searchBtn" onclick="searchWeather()">
+                    <i class="fas fa-bolt"></i>
+                    <span>Search</span>
+                </button>
+            </div>
+            <div class="city-chips" id="cityChips">
+                <!-- Chips loaded dynamically from S3 -->
+            </div>
+        </section>
+
+        <!-- ═══ Weather Result Section (hidden until search) ═══ -->
+        <section class="weather-section" id="weatherSection" style="display: none;">
+
+            <!-- Weather Tip Banner -->
+            <div class="tip-banner" id="tipBanner" style="display: none;">
+                <div class="tip-content">
+                    <i class="fas fa-lightbulb tip-icon"></i>
+                    <span class="tip-text" id="tipText"></span>
+                </div>
+                <span class="tip-source">
+                    <i class="fas fa-cloud"></i> Loaded from S3
+                </span>
+            </div>
+
+            <!-- Main Weather Card -->
+            <div class="weather-card glass-card" id="weatherCard">
+                <div class="weather-card-body">
+                    <div class="weather-left">
+                        <h3 class="weather-city" id="weatherCity">–</h3>
+                        <span class="weather-country" id="weatherCountry">–</span>
+                        <div class="weather-temp" id="weatherTemp">–°</div>
+                        <div class="weather-feels">
+                            Feels like <span id="weatherFeels">–</span>°
+                        </div>
+                        <div class="weather-minmax">
+                            <span><i class="fas fa-arrow-down"></i> <span id="weatherMin">–</span>°</span>
+                            <span><i class="fas fa-arrow-up"></i> <span id="weatherMax">–</span>°</span>
+                        </div>
+                    </div>
+                    <div class="weather-right">
+                        <img class="weather-icon-img" id="weatherIconImg" src="" alt="Weather icon">
+                        <p class="weather-desc" id="weatherDesc">–</p>
+                        <span class="s3-badge">
+                            <i class="fas fa-cloud-arrow-up"></i> Logged to S3
+                        </span>
+                    </div>
+                </div>
+                <div class="weather-stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon stat-icon-blue">
+                            <i class="fas fa-droplet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statHumidity">–%</span>
+                            <span class="stat-label">Humidity</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon stat-icon-green">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statWind">– m/s</span>
+                            <span class="stat-label">Wind Speed</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon stat-icon-orange">
+                            <i class="fas fa-gauge-high"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statPressure">– hPa</span>
+                            <span class="stat-label">Pressure</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon stat-icon-purple">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statVisibility">– km</span>
+                            <span class="stat-label">Visibility</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5-Step Forecast -->
+            <div class="forecast-section" id="forecastSection">
+                <h3 class="section-title">
+                    <i class="fas fa-calendar-day"></i> 5-Step Forecast
+                </h3>
+                <div class="forecast-grid" id="forecastGrid">
+                    <!-- Forecast cards loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Recent Searches from S3 -->
+            <div class="history-section" id="historySection">
+                <h3 class="section-title">
+                    <i class="fas fa-clock-rotate-left"></i> Recent Searches
+                    <span class="s3-source-label"><i class="fas fa-cloud"></i> from S3</span>
+                </h3>
+                <div class="history-grid" id="historyGrid">
+                    <!-- History cards loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ AWS Services Dashboard ═══ -->
+        <section class="aws-dashboard" id="awsDashboard">
+            <h3 class="section-title dashboard-title">
+                <i class="fab fa-aws"></i> AWS Services Dashboard
+            </h3>
+
+            <!-- Tabs -->
+            <div class="dashboard-tabs">
+                <button class="tab-btn active" id="tabSecrets" onclick="switchTab('secrets')">
+                    <i class="fas fa-lock"></i> Secrets Manager
+                </button>
+                <button class="tab-btn" id="tabS3" onclick="switchTab('s3')">
+                    <i class="fas fa-bucket"></i> S3 Bucket
+                </button>
+                <button class="tab-btn" id="tabAppInfo" onclick="switchTab('appInfo')">
+                    <i class="fas fa-circle-info"></i> App Info
+                </button>
+            </div>
+
+            <!-- Tab 1: Secrets Manager -->
+            <div class="tab-content active" id="tabContentSecrets">
+                <div class="secrets-info-grid" id="secretsInfoGrid">
+                    <div class="info-card glass-card">
+                        <span class="info-label">Secret Name</span>
+                        <span class="info-value" id="secretName">–</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">API Key Preview</span>
+                        <span class="info-value mono" id="secretApiPreview">–</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">App ID</span>
+                        <span class="info-value" id="secretAppId">–</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">S3 Bucket</span>
+                        <span class="info-value" id="secretBucket">–</span>
+                    </div>
+                </div>
+
+                <div class="secrets-keys-section">
+                    <h4 class="subsection-title">Stored Keys</h4>
+                    <div class="keys-pills" id="secretKeysPills">
+                        <!-- Key pills loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="secrets-actions">
+                    <button class="action-btn btn-indigo" onclick="loadSecretsTab()">
+                        <i class="fas fa-rotate"></i> Refresh Secrets
+                    </button>
+                    <button class="action-btn btn-red" onclick="clearAllCaches()">
+                        <i class="fas fa-trash-can"></i> Clear All Caches
+                    </button>
+                </div>
+
+                <div class="security-note">
+                    <i class="fas fa-shield-halved"></i>
+                    Secret values are never exposed to the browser. Only metadata is displayed.
+                </div>
+            </div>
+
+            <!-- Tab 2: S3 Bucket -->
+            <div class="tab-content" id="tabContentS3">
+                <div class="s3-stats-grid" id="s3StatsGrid">
+                    <div class="info-card glass-card">
+                        <span class="info-label">Total Files</span>
+                        <span class="info-value" id="s3TotalFiles">–</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">Total Size</span>
+                        <span class="info-value" id="s3TotalSize">– KB</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">Bucket Name</span>
+                        <span class="info-value" id="s3BucketName">–</span>
+                    </div>
+                    <div class="info-card glass-card">
+                        <span class="info-label">Region</span>
+                        <span class="info-value" id="s3Region">–</span>
+                    </div>
+                </div>
+
+                <div class="folder-breakdown" id="folderBreakdown">
+                    <h4 class="subsection-title">Folder Breakdown</h4>
+                    <div class="folder-cards" id="folderCards">
+                        <!-- Folder cards loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="s3-actions">
+                    <button class="action-btn btn-indigo" onclick="loadS3Tab()">
+                        <i class="fas fa-rotate"></i> Refresh S3 Info
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab 3: App Info -->
+            <div class="tab-content" id="tabContentAppInfo">
+                <div class="app-info-container" id="appInfoContainer">
+                    <button class="action-btn btn-indigo load-app-info-btn" id="loadAppInfoBtn" onclick="loadAppInfoTab()">
+                        <i class="fas fa-cloud-arrow-down"></i> Load from S3
+                    </button>
+                    <div class="app-info-data" id="appInfoData" style="display: none;">
+                        <!-- App info loaded on demand -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <p>
+            <i class="fas fa-cloud-sun"></i> WeatherVault v2.0.0 ·
+            Powered by <i class="fab fa-aws"></i> AWS ·
+            Weather data by <a href="https://openweathermap.org/" target="_blank" rel="noopener">OpenWeatherMap</a>
+        </p>
+    </footer>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>
