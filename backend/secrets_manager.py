@@ -44,7 +44,7 @@ class SecretsManager:
         """Lazily create the Secrets Manager boto3 client."""
         if self._client is None:
             try:
-                self._client = boto3.client("secretsmanager")
+                self._client = boto3.client("secretsmanager", region_name=self._region)
                 logger.info("[SecretsManager] boto3 client created successfully")
             except Exception as e:
                 logger.error(f"[SecretsManager] Failed to create boto3 client: {e}")
