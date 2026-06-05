@@ -21,9 +21,9 @@ from botocore.exceptions import ClientError
 # ═══════════════════════════════════════════════════════════════
 
 SECRET_VALUES = {
-    "weather_api_key": "PASTE_YOUR_OPENWEATHERMAP_KEY",
+    "weather_api_key": "60ebb0d26352145feeeb2294f5e2dca1",
     "app_id": "weathervault-dashboard-v2",
-    "s3_bucket_name": "PASTE_YOUR_BUCKET_NAME",
+    "s3_bucket_name": "weathervault-dashboard-2026-60ebb",
     "s3_region": "us-east-1",
     "default_units": "metric",
     "api_base_url": "https://api.openweathermap.org/data/2.5",

@@ -22,7 +22,7 @@ from botocore.exceptions import ClientError
 # *** REPLACE THIS PLACEHOLDER WITH YOUR ACTUAL BUCKET NAME ***
 # ═══════════════════════════════════════════════════════════════
 
-BUCKET_NAME = "PASTE_YOUR_BUCKET_NAME_HERE"
+BUCKET_NAME = "weathervault-dashboard-2026-60ebb"
 AWS_REGION = "us-east-1"
 
 # S3 folder structure to create

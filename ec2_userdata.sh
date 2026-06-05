@@ -31,7 +31,7 @@ apt-get install -y python3 python3-pip python3-venv git nginx curl
 # ─── Step 3: Clone Repository ────────────────────────────────
 echo "[3/12] Cloning repository..."
 cd /home/ubuntu
-git clone GITHUB_REPO_URL weather-dashboard
+git clone https://github.com/Likhi161/weather-dashboard.git weather-dashboard
 
 # ─── Step 4: Setup Python Virtual Environment ────────────────
 echo "[4/12] Setting up Python virtual environment..."

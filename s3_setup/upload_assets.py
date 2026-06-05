@@ -21,7 +21,7 @@ from botocore.exceptions import ClientError
 # *** REPLACE WITH YOUR ACTUAL BUCKET NAME ***
 # ═══════════════════════════════════════════════════════════════
 
-BUCKET_NAME = "PASTE_YOUR_BUCKET_NAME_HERE"
+BUCKET_NAME = "weathervault-dashboard-2026-60ebb"
 AWS_REGION = "us-east-1"
 
 # Asset folders mapping: local path → S3 prefix
