@@ -5,9 +5,7 @@
  * Uses async/await with try/catch on every fetch call.
  */
 
-// ═══════════════════════════════════════════════════════════════
-// API BASE URL
-const API = 'http://13.206.82.46/api';
+const API = 'http://13.201.34.225/api';
 
 // ─── State ─────────────────────────────────────────────────────
 let currentCity = 'London';
